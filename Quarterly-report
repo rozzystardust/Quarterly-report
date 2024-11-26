@@ -1,0 +1,103 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class DepartmentStoreSales {
+
+    // Data for 2nd and 3rd Quarter Sales (in thousands)
+    static int[][] secondQuarterSales = {
+        {67, 63, 78}, // Electrical
+        {65, 67, 56}, // Kitchen
+        {63, 63, 65}, // Bathroom
+        {18, 24, 22}, // Soft Furnishing
+        {16, 23, 21}  // Accessories
+    };
+
+    static int[][] thirdQuarterSales = {
+        {78, 104, 103}, // Electrical
+        {45, 56, 72},   // Kitchen
+        {71, 73, 69},   // Bathroom
+        {19, 17, 16},   // Soft Furnishing
+        {19, 20, 19}    // Accessories
+    };
+
+    static String[] departments = {"Electrical", "Kitchen", "Bathroom", "Soft Furnishing", "Accessories"};
+    static String[] monthsSecondQuarter = {"April", "May", "June"};
+    static String[] monthsThirdQuarter = {"July", "August", "September"};
+
+    public static void main(String[] args) {
+        // Generate reports for both quarters
+        generateQuarterlyReport("2nd Quarter", secondQuarterSales, monthsSecondQuarter);
+        generateQuarterlyReport("3rd Quarter", thirdQuarterSales, monthsThirdQuarter);
+    }
+
+    public static void generateQuarterlyReport(String quarter, int[][] sales, String[] months) {
+        System.out.println("\n=== " + quarter + " Report ===");
+
+        int totalSales = 0;
+        Map<String, Integer> departmentTotals = new HashMap<>();
+        int bestDepartmentIndex = 0, worstDepartmentIndex = 0;
+
+        // Calculate total sales for each department and overall
+        for (int i = 0; i < departments.length; i++) {
+            int departmentTotal = 0;
+            for (int sale : sales[i]) {
+                departmentTotal += sale;
+            }
+            departmentTotals.put(departments[i], departmentTotal);
+            totalSales += departmentTotal;
+
+            // Track best and worst performing departments
+            if (departmentTotal > departmentTotals.getOrDefault(departments[bestDepartmentIndex], 0)) {
+                bestDepartmentIndex = i;
+            }
+            if (departmentTotal < departmentTotals.getOrDefault(departments[worstDepartmentIndex], Integer.MAX_VALUE)) {
+                worstDepartmentIndex = i;
+            }
+        }
+
+        // Print total sales for each department
+        departmentTotals.forEach((dept, total) -> System.out.println(dept + ": £" + total + ",000"));
+
+        // Print best and worst performing departments
+        System.out.println("Best Department: " + departments[bestDepartmentIndex] + ", Sales: " +
+            formatSales(sales[bestDepartmentIndex]) + " (£" + departmentTotals.get(departments[bestDepartmentIndex]) + ",000)");
+
+        System.out.println("Worst Department: " + departments[worstDepartmentIndex] + ", Sales: " +
+            formatSales(sales[worstDepartmentIndex]) + " (£" + departmentTotals.get(departments[worstDepartmentIndex]) + ",000)");
+
+        // Most effective month for each department
+        System.out.println("Most Effective Month per Department:");
+        for (int i = 0; i < departments.length; i++) {
+            int maxSale = 0;
+            int maxMonthIndex = 0;
+            for (int j = 0; j < sales[i].length; j++) {
+                if (sales[i][j] > maxSale) {
+                    maxSale = sales[i][j];
+                    maxMonthIndex = j;
+                }
+            }
+            System.out.println(departments[i] + ": " + months[maxMonthIndex] + ", £" + maxSale + ",000");
+        }
+
+        // Calculate tax for the total sales
+        double tax = totalSales * 0.17;
+        System.out.println("Total Sales: £" + totalSales + ",000; Tax (17%): £" + tax + ",000");
+
+        // Calculate new sales targets for each department
+        System.out.println("New Sales Targets (12% Increase):");
+        for (int i = 0; i < departments.length; i++) {
+            double avgSales = departmentTotals.get(departments[i]) / 3.0;
+            double newTarget = avgSales * 1.12;
+            System.out.printf("%s: £%.2f,000%n", departments[i], newTarget);
+        }
+    }
+
+    // Helper to format monthly sales as a string
+    public static String formatSales(int[] sales) {
+        StringBuilder sb = new StringBuilder();
+        for (int sale : sales) {
+            sb.append("£").append(sale).append(",000 ");
+        }
+        return sb.toString().trim();
+    }
+}
